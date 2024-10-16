@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>قائمة المهام</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    /* التصميم العام */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #4CAF50;
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .todo-container {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .todo-container h2 {
+      color: #555;
+      margin-bottom: 20px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    /* تصميم نافذة الإدخال (Modal) */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content input {
+      padding: 10px;
+      font-size: 18px;
+      width: calc(100% - 80px);
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      outline: none;
+      margin-bottom: 15px;
+      transition: border-color 0.3s ease;
+      width: 90%;
+    }
+
+    .modal-content button {
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      width: 95%;
+    }
+
+    .modal-content button:hover {
+      background-color: #45a049;
+    }
+
+    /* تصميم الزر لإضافة مهمة جديدة */
+    .add-task {
+      position: absolute;
+      top: -20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+
+    .add-task:hover {
+      background-color: #45a049;
+    }
+
+    /* تصميم قائمة المهام */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    ul li {
+      background-color: #f9f9f9;
+      margin: 10px 0;
+      padding: 10px 15px;
+      font-size: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
+    }
+
+    ul li:hover {
+      background-color: #eef7f3;
+    }
+
+    .delete {
+      background-color: #ff5c5c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .delete:hover {
+      background-color: #ff4040;
+    }
+
+    .delete i {
+      margin: 0;
+    }
+
+    /* نافذة التأكيد (Confirm Modal) */
+    .confirm-modal {
+      display: none;
+      position: fixed;
+      z-index: 2;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .confirm-modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .confirm-modal-content p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .confirm-modal-content button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 5px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .confirm-modal-content .yes {
+      background-color: #ff5c5c;
+      color: white;
+    }
+
+    .confirm-modal-content .no {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .confirm-modal-content .yes:hover {
+      background-color: #ff4040;
+    }
+
+    .confirm-modal-content .no:hover {
+      background-color: #45a049;
+    }
+
+    /* استجابة للشاشات الصغيرة */
+    @media (max-width: 600px) {
+      .todo-container {
+        width: 100%;
+      }
+
+      input[type="text"] {
+        width: calc(100% - 70px);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="todo-container">
+    <h1>قائمة المهام</h1>
+    <ul id="taskList"></ul>
+    <button class="add-task" onclick="openModal()"><i class="fas fa-plus"></i></button>
+  </div>
+
+  <!-- نافذة الإدخال (Modal) -->
+  <div id="myModal" class="modal">
+    <div class="modal-content">
+      <input type="text" id="taskInput" placeholder="أضف مهمة جديدة...">
+      <button onclick="addTask()">أضف المهمة</button>
+    </div>
+  </div>
+
+  <!-- نافذة تأكيد الحذف -->
+  <div id="confirmModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+      <p>هل أنت متأكد أنك تريد حذف هذه المهمة؟</p>
+      <button class="yes" onclick="confirmDelete()">نعم</button>
+      <button class="no" onclick="closeConfirmModal()">لا</button>
+    </div>
+  </div>
+
+  <script>
+    let taskToDelete;
+
+    // فتح نافذة الإدخال (Modal)
+    function openModal() {
+      document.getElementById("myModal").style.display = "flex";
+    }
+
+    // إغلاق نافذة الإدخال (Modal)
+    function closeModal() {
+      document.getElementById("myModal").style.display = "none";
+    }
+
+    // تحميل المهام المحفوظة عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', loadTasks);
+
+    function loadTasks() {
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.forEach(task => addTaskToDOM(task));
+    }
+
+    // إضافة مهمة جديدة
+    function addTask() {
+      let taskInput = document.getElementById('taskInput');
+      let taskText = taskInput.value;
+
+      if (taskText !== "") {
+        addTaskToDOM(taskText); // إضافة المهمة إلى الصفحة
+        saveTask(taskText); // حفظ المهمة في Local Storage
+        taskInput.value = ""; // إفراغ حقل الإدخال
+        closeModal(); // إغلاق نافذة الإدخال بعد إضافة المهمة
+      }
+    }
+
+    // إضافة مهمة إلى DOM
+    function addTaskToDOM(taskText) {
+      let taskList = document.getElementById('taskList');
+      let li = document.createElement('li');
+      li.textContent = taskText;
+
+      // زر حذف المهمة
+      let deleteButton = document.createElement('button');
+      deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+      deleteButton.classList.add('delete');
+      deleteButton.onclick = function () {
+        taskToDelete = taskText; // تخزين المهمة المحددة للحذف
+        openConfirmModal(); // فتح نافذة تأكيد الحذف
+      };
+
+      // إضافة زر الحذف للمهمة
+      li.appendChild(deleteButton);
+      taskList.appendChild(li);
+    }
+
+    // حفظ المهمة في Local Storage
+    function saveTask(taskText) {
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.push(taskText);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // فتح نافذة تأكيد الحذف
+    function openConfirmModal() {
+      document.getElementById("confirmModal").style.display = "flex";
+    }
+
+    // إغلاق نافذة تأكيد الحذف
+    function closeConfirmModal() {
+      document.getElementById("confirmModal").style.display = "none";
+      taskToDelete = null; // إعادة تعيين المتغير
+    }
+
+    // تأكيد الحذف
+    function confirmDelete() {
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks = tasks.filter(task => task !== taskToDelete);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      
+      // حذف المهمة من DOM
+      let taskList = document.getElementById('taskList');
+      taskList.innerHTML = ''; // مسح القائمة
+      tasks.forEach(task => addTaskToDOM(task)); // إعادة تحميل المهام بعد الحذف
+
+      closeConfirmModal(); // إغلاق نافذة التأكيد
+    }
+  </script>
+
+</body>
+</html>
+
